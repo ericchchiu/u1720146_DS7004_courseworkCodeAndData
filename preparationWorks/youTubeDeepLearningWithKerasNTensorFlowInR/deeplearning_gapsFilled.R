@@ -1,8 +1,14 @@
+# Set working directory
+setwd(dirname(file.choose()))
+getwd()
+
 # Install packages
 library(keras)
 #install_keras() #no need here
 
-# Use here. Important here
+# Used once here at the beginning
+#conda_create("r-reticulate")
+# Use here (in my Asus with proper python installed -20200720). Important here
 use_condaenv("r_reticulate")
 
 # Read data
@@ -32,6 +38,7 @@ testLabels <- to_categorical(testtarget)
 print(testLabels)
 
 # Create sequential model
+## 1st: one hidden layer, units = 8 (21 input columns, 3 categories)
 model <- keras_model_sequential()
 model %>% #one hidden layer, units = 8 (21 input columns, 3 categories)
          layer_dense(units=8, activation = 'relu', input_shape = c(21)) %>%
@@ -51,12 +58,13 @@ model %>%
          layer_dense(units=8, activation = 'relu') %>%
 		 layer_dense(units = 3, activation = 'softmax')	
 
-## try different number of layers and units
-	model <- keras_model_sequential()
+## try different numbers of layer and unit
+model <- keras_model_sequential()
 model %>%
          layer_dense(units=84, activation = 'relu', input_shape = c(21)) %>%
          layer_dense(units=42, activation = 'relu') %>%
 		 layer_dense(units=21, activation = 'relu') %>%
+		 layer_dense(units=7, activation = 'relu') %>%
 		 layer_dense(units = 3, activation = 'softmax') 
 
 # Compile
@@ -66,12 +74,22 @@ model %>%
                  metrics = 'accuracy')
 
 # Fit model
+## 1st:
 history <- model %>%
          fit(training,
              trainLabels,
              epoch = 200,
              batch_size = 32,
              validation_split = 0.2)
+plot(history)
+
+## try different numbers of epoch, batch_size and validation_split:
+history <- model %>%
+         fit(training,
+             trainLabels,
+             epoch = 200,
+             batch_size = 64,
+             validation_split = 0.25)
 plot(history)
 
 # Evaluate model with test data
@@ -84,7 +102,12 @@ prob <- model %>%
 
 pred <- model %>%
          predict_classes(test)
+
 table <- table(Predicted = pred, Actual = testtarget)
+table
+
+library(caret)
+confusionMatrix(table <- table(Predicted = pred, Actual = testtarget), mode = "everything")
 
 cbind(prob, pred, testtarget)
 
