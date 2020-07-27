@@ -9,10 +9,10 @@ library(keras)
 # Used once here at the beginning
 #conda_create("r-reticulate")
 # Use here (in my Asus with proper python installed -20200720). Important here
-use_condaenv("r_reticulate")
+use_condaenv("r-reticulate")
 
 # Read data
-data <- read.csv(file.choose(), header = T)
+data <- read.csv("Cardiotocographic.csv")
 str(data)
 
 # Change to matrix
@@ -45,16 +45,16 @@ model %>% #one hidden layer, units = 8 (21 input columns, 3 categories)
          layer_dense(units = 3, activation = 'softmax')
 summary(model)
 
-## 2nd: one hidden layer, units = 50
+## 2nd: one hidden layer, units = 21
 model <- keras_model_sequential()
 model %>%
          layer_dense(units=50, activation = 'relu', input_shape = c(21)) %>%
          layer_dense(units = 3, activation = 'softmax')
 		 
-## 3rd: two hidden layers, 1st units = 50, 2nd units = 8
+## 3rd: two hidden layers, 1st units = 21, 2nd units = 8
 model <- keras_model_sequential()
 model %>%
-         layer_dense(units=50, activation = 'relu', input_shape = c(21)) %>%
+         layer_dense(units=21, activation = 'relu', input_shape = c(21)) %>%
          layer_dense(units=8, activation = 'relu') %>%
 		 layer_dense(units = 3, activation = 'softmax')	
 

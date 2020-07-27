@@ -1,3 +1,4 @@
+#High frequency words
 #Three popular female novelists all born in the 1850s: 17 Helen Mathers 1853-1920 (18010- 18669 in the kaggle csv file), 32 Lucas Malet 1852-1931 (33861-34563), 33 Marie Corelli 1855-1924 (34564-36305)
 #200 lines each
 #there is a â in the code. If this code is loaded to RStudio, the encoding of it should be changed to UTF-8!!!
@@ -78,8 +79,8 @@ table(pred = HmOrLmOrMc_pred, true_HelenMathers_LucasMalet_MarieCorelli_KNN = df
 #k = 11 perform the best, only one error: 1 MC was misjudged as LM
 
 #SVM! tune automatically
-if (!require('e1071')) install.packages('e1071'); library('e1071')library
-HmOrLmOrMc_svm_model <- svm(dfHmLmMcWdFeqDfLabledRandm_norm_train, dfHmLmMcWdFeqDfLabledRandm[1:120,1], type = 'C')
+if (!require('e1071')) install.packages('e1071'); library('e1071')
+HmOrLmOrMc_svm_model <- svm(dfHmLmMcWdFeqDfLabledRandm_norm_train, as.factor(dfHmLmMcWdFeqDfLabledRandm[1:120,1]), type = 'C')
 pred <- predict(HmOrLmOrMc_svm_model, dfHmLmMcWdFeqDfLabledRandm_norm_test)
 table(pred, true_HelenMathers_LucasMalet_MarieCorelli_SVM = dfHmLmMcWdFeqDfLabledRandm[121:150,1])
 #all correct
