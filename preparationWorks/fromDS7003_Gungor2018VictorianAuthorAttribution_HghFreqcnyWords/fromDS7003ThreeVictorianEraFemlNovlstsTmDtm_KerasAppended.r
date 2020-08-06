@@ -1,7 +1,8 @@
-#DS7004 Gungor's dataset N-gram(4)
+#High frequency words
 #Three popular female novelists all born in the 1850s: 17 Helen Mathers 1853-1920 (18010- 18669 in the kaggle csv file), 32 Lucas Malet 1852-1931 (33861-34563), 33 Marie Corelli 1855-1924 (34564-36305)
 #200 lines each
 #there is a â in the code. If this code is loaded to RStudio, the encoding of it should be changed to UTF-8!!!
+#obtained from DS7003 coursework and then added the deep learning part to the end
 
 #set working directory and load package tm
 setwd(dirname(file.choose()))
@@ -21,25 +22,6 @@ dfHelen_Mathers18009_18208 <- dfVictorianEraAA[18009:18208,]
 dfLucas_Malet33860_34059 <- dfVictorianEraAA[33860:34059,]
 dfMarie_Corelli34563_34762 <- dfVictorianEraAA[34563:34762,]
 
-# Function for forming character 4-Grams
-if (!require('stylo')) install.packages('stylo'); library('stylo')
-library(stylo)
-charNGramDf <- function(columnCell) {
-my.text = gsub('\\s+', "_", columnCell, perl = T)
-my.vector.of.chars = txt.to.features(my.text, features = "c")
-x = make.ngrams(my.vector.of.chars, ngram.size = 4)
-xx = lapply(x,function(x) gsub('(?<=[\\S]) (?=[\\S])', '',x, perl = T))
-return(paste(xx, collapse = ' '))
-}
-
-# Converting to 4-grams texts
-dfHelen_Mathers18009_18208 <- as.data.frame(cbind(lapply(dfHelen_Mathers18009_18208[,1], charNGramDf), dfHelen_Mathers18009_18208[,2]))
-colnames(dfHelen_Mathers18009_18208) <- c('text', 'author')
-dfLucas_Malet33860_34059 <- as.data.frame(cbind(lapply(dfLucas_Malet33860_34059[,1], charNGramDf), dfLucas_Malet33860_34059[,2]))
-colnames(dfLucas_Malet33860_34059) <- c('text', 'author')
-dfMarie_Corelli34563_34762 <- as.data.frame(cbind(lapply(dfMarie_Corelli34563_34762[,1], charNGramDf), dfMarie_Corelli34563_34762[,2]))
-colnames(dfMarie_Corelli34563_34762) <- c('text', 'author')
-
 #form corpa from dataframes.
 #texts are already all in lower case and no punctuation
 #package tm is required
@@ -58,25 +40,24 @@ dfMarie_Corelli34563_34762_dtDf <- as.data.frame(as.matrix(DocumentTermMatrix(df
 
 #retain only columns of words which can found both in HM, LM and MC's texts
 common_cols <- intersect(intersect(colnames(dfHelen_Mathers18009_18208_dtDf), colnames(dfLucas_Malet33860_34059_dtDf)), colnames(dfMarie_Corelli34563_34762_dtDf))
-HmLmMcDtDf <- rbind(dfHelen_Mathers18009_18208_dtDf[common_cols], dfLucas_Malet33860_34059_dtDf[common_cols], dfMarie_Corelli34563_34762_dtDf[common_cols])#15220 cols
-
-#delete columns with their names contain â #14924
-HmLmMcDtDf <- HmLmMcDtDf[, -grep(pattern = '.*â.*â*.*', colnames(HmLmMcDtDf))]
-#texts quite untidy. number of â in HM 2077, LM 1743 and MC 6280
+HmLmMcDtDf <- rbind(dfHelen_Mathers18009_18208_dtDf[common_cols], dfLucas_Malet33860_34059_dtDf[common_cols], dfMarie_Corelli34563_34762_dtDf[common_cols])#5228 cols
 
 #further retain only columns of words each of which are at least appeared
-#600 times 
-HmLmMcTtl600OrMore <- HmLmMcDtDf[, colSums(HmLmMcDtDf) >=600] #975
+#300 times 0.05%
+HmLmMcTtl300OrMore <- HmLmMcDtDf[, colSums(HmLmMcDtDf) >=300] #237
+#texts quite untidy. number of â in HM 2077, LM 1743 and MC 6280
+#delete the column â
+HmLmMcTtl300OrMore$â <- NULL #236
 
 #aggreate and sum every four lines (reduced to 150 lines)
 #add and delete column textNO
-HmLmMcTtl600OrMore$textNo <- rep(1:150, each = 4)
-dfHmLmMcWdFeqDf <- aggregate(. ~ textNo, HmLmMcTtl600OrMore, sum)
+HmLmMcTtl300OrMore$textNo <- rep(1:150, each = 4)
+dfHmLmMcWdFeqDf <- aggregate(. ~ textNo, HmLmMcTtl300OrMore, sum)
 dfHmLmMcWdFeqDf$textNo <- NULL
 
 #add labels HM, LM and MC and put the column to the front
 dfHmLmMcWdFeqDf$HmOrLmOrMc <- c(rep('HM', 50), rep('LM', 50), rep('MC', 50))
-dfHmLmMcWdFeqDfLabled = dfHmLmMcWdFeqDf[,c(976,1:975)] #975+1
+dfHmLmMcWdFeqDfLabled = dfHmLmMcWdFeqDf[,c(237,1:236)] #236+1
 
 #shuffling rows:
 set.seed(12345)
@@ -98,7 +79,7 @@ table(pred = HmOrLmOrMc_pred, true_HelenMathers_LucasMalet_MarieCorelli_KNN = df
 #k = 11 perform the best, only one error: 1 MC was misjudged as LM
 
 #SVM! tune automatically
-if (!require('e1071')) install.packages('e1071'); library('e1071') 
+if (!require('e1071')) install.packages('e1071'); library('e1071')
 HmOrLmOrMc_svm_model <- svm(dfHmLmMcWdFeqDfLabledRandm_norm_train, as.factor(dfHmLmMcWdFeqDfLabledRandm[1:120,1]), type = 'C')
 pred <- predict(HmOrLmOrMc_svm_model, dfHmLmMcWdFeqDfLabledRandm_norm_test)
 table(pred, true_HelenMathers_LucasMalet_MarieCorelli_SVM = dfHmLmMcWdFeqDfLabledRandm[121:150,1])
@@ -137,13 +118,12 @@ trainLabels <- to_categorical(as.numeric(as.factor(dfHmLmMcWdFeqDfLabledRandm[1:
 testtarget <- as.numeric(as.factor(dfHmLmMcWdFeqDfLabledRandm[121:150,1])) - 1
 testLabels <- to_categorical(testtarget)
 
-# Create sequential model (975 input columns, 3 categories)
+# Create sequential model (236 input columns, 3 categories)
 model <- keras_model_sequential()
-model %>% #one hidden layer, units = 325 (236 input columns, 3 categories)
-         layer_dense(units=325, activation = 'relu', input_shape = c(975)) %>%
-		 layer_dense(units=109, activation = 'relu') %>% #cannot use sigmoid, why?
+model %>% #one hidden layer, units = 236 (236 input columns, 3 categories)
+         layer_dense(units=236, activation = 'relu', input_shape = c(236)) %>%
          layer_dense(units = 3, activation = 'softmax')
-summary(model)
+summary(model)  #see bottom for the best arrangement
 
 # Compile
 model %>%
@@ -156,7 +136,7 @@ history <- model %>%
 	 fit(training,
 		 trainLabels,
 		 epoch = 200,
-		 batch_size = 64,
+		 batch_size = 32,
 		 validation_split = 0.2)
 
 # Prediction & confusion matrix - test data and labels
@@ -166,9 +146,9 @@ pred <- model %>%
 library(caret)
 confusionMatrix(table <- table(Predicted = pred, Actual = testtarget), mode = "everything")
 
-#prob, pred, testtarget:
-prob <- model %>%
-        predict_proba(test)      
+#epoch 200, batch_size 32, validation_split 0.2
+#unit 8 3 F1 0.9524 1 0.9474
 
-cbind(prob, pred, testtarget)
+#200 32 0.2 236 3 1 1 1      
 
+		 

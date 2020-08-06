@@ -39,24 +39,26 @@ print(testLabels)
 
 # Create sequential model
 ## 1st: one hidden layer, units = 8 (21 input columns, 3 categories)
-model <- keras_model_sequential()
-model %>% #one hidden layer, units = 8 (21 input columns, 3 categories)
-         layer_dense(units=8, activation = 'relu', input_shape = c(21)) %>%
-         layer_dense(units = 3, activation = 'softmax')
-summary(model)
+#model <- keras_model_sequential()
+#model %>% #one hidden layer, units = 8 (21 input columns, 3 categories)
+#         layer_dense(units=8, activation = 'relu', input_shape = c(21)) %>%
+#         layer_dense(units = 3, activation = 'softmax')
+#summary(model)
 
 ## 2nd: one hidden layer, units = 21
-model <- keras_model_sequential()
-model %>%
-         layer_dense(units=50, activation = 'relu', input_shape = c(21)) %>%
-         layer_dense(units = 3, activation = 'softmax')
+#model <- keras_model_sequential()
+#model %>%
+#         layer_dense(units=21, activation = 'relu', input_shape = c(21)) %>%
+#         layer_dense(units = 3, activation = 'softmax')
+#summary(model)
 		 
 ## 3rd: two hidden layers, 1st units = 21, 2nd units = 8
-model <- keras_model_sequential()
-model %>%
-         layer_dense(units=21, activation = 'relu', input_shape = c(21)) %>%
-         layer_dense(units=8, activation = 'relu') %>%
-		 layer_dense(units = 3, activation = 'softmax')	
+#model <- keras_model_sequential()
+#model %>%
+#         layer_dense(units=21, activation = 'relu', input_shape = c(21)) %>%
+#         layer_dense(units=21, activation = 'relu') %>%
+#		 layer_dense(units = 3, activation = 'softmax')
+#summary(model)
 
 ## try different numbers of layer and unit
 model <- keras_model_sequential()
@@ -65,7 +67,8 @@ model %>%
          layer_dense(units=42, activation = 'relu') %>%
 		 layer_dense(units=21, activation = 'relu') %>%
 		 layer_dense(units=7, activation = 'relu') %>%
-		 layer_dense(units = 3, activation = 'softmax') 
+		 layer_dense(units = 3, activation = 'softmax')
+summary(model)
 
 # Compile
 model %>%
@@ -75,21 +78,21 @@ model %>%
 
 # Fit model
 ## 1st:
-history <- model %>%
-         fit(training,
-             trainLabels,
-             epoch = 200,
-             batch_size = 32,
-             validation_split = 0.2)
-plot(history)
+#history <- model %>%
+#         fit(training,
+#             trainLabels,
+#             epoch = 200,
+#             batch_size = 32,
+#             validation_split = 0.2)
+#plot(history)
 
 ## try different numbers of epoch, batch_size and validation_split:
 history <- model %>%
          fit(training,
              trainLabels,
-             epoch = 200,
+             epoch = 300,
              batch_size = 64,
-             validation_split = 0.25)
+             validation_split = 0.20)
 plot(history)
 
 # Evaluate model with test data
@@ -112,3 +115,11 @@ confusionMatrix(table <- table(Predicted = pred, Actual = testtarget), mode = "e
 cbind(prob, pred, testtarget)
 
 # Fine-tune model
+#(epoch 200/ batch_size 32 validation_split 0.2 8 3
+#F1: class0 0.9203, class1 0.58757, class2 0.75
+
+#200 32 0.2 21 3  0.9218 0.62222 0.8172 <- the best
+#300 64 0.2 21 3  0.9236 0.61017 0.8000
+#200 32 0.2 21 21 3 0.9135 0.6122 0.77778
+#300 64 0.2 84 42 21 7 3 0.9279 0.6455 0.79208
+
