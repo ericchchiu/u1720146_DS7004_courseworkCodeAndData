@@ -123,7 +123,7 @@ table(pred = pred_svm_after_tune, true_HelenMathers_LucasMalet_MarieCorelli_Tune
 # Deep learning using package keras
 # import keras
 # note: use_condaenv("r_reticulate") is only work for my Asus PC + Windows 10
-# see README.md for matters related to installation of Python
+# see README.md for matters related to installation of Keras
 if (!require('keras')) install.packages('keras'); library('keras')
 use_condaenv("r_reticulate")
 
