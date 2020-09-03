@@ -1,5 +1,5 @@
 Notes:
-1) Data sets need to be found and downloaded.
+1) Data sets need to be found from the internet and downloaded.
 2) It is not easy to install Tensorflow and Keras in RStudio.
 3) Python programmes are in two versions: .ipynb and .py .
 
