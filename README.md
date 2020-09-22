@@ -9,10 +9,9 @@ Eric Chiu
 u1720146@uel.ac.uk
 
 ------------------------------------------------------------
-20200921: 
+20200921: "torturing the data until it confesses" -- has WANs done that?
 
 A paragraph extracted from Hands-On Machine Learning... 2nd ed. 2019:
-("torturing the data until it confesses")
 "Are you convinced? You shouldn’t be: I cheated! I tried many
 configurations until I found one that demonstrated a strong improvement.
 If you try to change the classes or the random seed, you will see that the
